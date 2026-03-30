@@ -1,279 +1,51 @@
-:root {
-    --bg-base: #06070a;
-    --bg-complex: radial-gradient(circle at 10% 20%, #1a1e36 0%, transparent 40%),
-                  radial-gradient(circle at 90% 80%, #151a2d 0%, transparent 40%);
-    --glass-bg: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --accent: #a5b4fc;
-    --accent-hover: #c7d2fe;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --shadow-main: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-* { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: var(--bg-base);
-    background-image: var(--bg-complex);
-    color: var(--text-main);
-    height: 100vh;
+/* Стили авторизации */
+.auth-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(10px);
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
-    /* Анимация фона */
-    background-size: 200% 200%;
-    animation: gradientMove 15s ease infinite;
+    z-index: 1000;
 }
 
-@keyframes gradientMove {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.glass-container {
-    width: 95%;
-    max-width: 800px;
-    height: 90vh;
+.auth-box {
     background: var(--glass-bg);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
     border: 1px solid var(--glass-border);
+    padding: 40px;
     border-radius: 24px;
-    box-shadow: var(--shadow-main);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-/* Улучшенный хэдер */
-header {
-    padding: 24px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--glass-border);
-    background: rgba(0,0,0,0.1);
-}
-
-header h1 {
-    margin: 0;
-    font-size: 1.6rem;
-    font-weight: 400;
-    letter-spacing: 2px;
-    text-shadow: 0 0 10px rgba(165,180,252,0.3);
-}
-
-.accent { font-weight: 700; color: var(--accent); }
-
-.upload-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(165,180,252,0.06);
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    padding: 10px 24px;
-    border-radius: 30px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: var(--transition-smooth);
-}
-
-.upload-btn:hover {
-    background: var(--accent);
-    color: var(--bg-base);
-    box-shadow: 0 0 20px rgba(165,180,252,0.4);
-}
-
-.upload-btn .icon { font-size: 1.2rem; }
-
-/* Улучшенный список треков */
-main {
-    flex: 1;
-    padding: 24px 32px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-main::-webkit-scrollbar { width: 6px; }
-main::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 10px; }
-
-.track-item {
-    background: rgba(255,255,255, 0.01);
-    border: 1px solid transparent;
-    padding: 18px 24px;
-    border-radius: 16px;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-    display: flex;
-    align-items: center;
-    font-size: 1rem;
-}
-
-.track-item:hover {
-    background: rgba(255,255,255, 0.04);
-    border-color: var(--glass-border);
-    transform: translateX(8px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.track-item.playing {
-    background: rgba(165,180,252, 0.04);
-    border-left: 4px solid var(--accent);
-    padding-left: 21px;
-    box-shadow: 0 4px 12px rgba(165,180,252, 0.1);
-}
-
-.empty-state { text-align: center; color: var(--text-muted); margin-top: 2rem; font-style: italic; }
-
-/* Кастомный Плеер (Liquid Glass) */
-.player-container {
-    padding: 20px 32px;
-    background: rgba(0,0,0,0.3);
-    border-top: 1px solid var(--glass-border);
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.now-playing {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--accent);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 90%;
+    max-width: 400px;
     text-align: center;
 }
 
-.custom-player {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
+.auth-box h2 { margin-top: 0; margin-bottom: 8px; }
+.auth-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; }
 
-/* Кнопки управления */
-.controls-row {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    align-items: center;
-}
-
-.control-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-size: 1.8rem;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-    padding: 8px;
-    line-height: 1;
-}
-
-.control-btn:hover { color: var(--text-main); transform: scale(1.1); }
-.play-pause-btn { font-size: 2.2rem; color: var(--text-main); text-shadow: 0 0 10px rgba(255,255,255,0.2); }
-.play-pause-btn:hover { color: var(--accent); }
-
-.repeat-btn.active { color: var(--accent); text-shadow: 0 0 8px rgba(165,180,252,0.5); }
-
-/* Улучшенный прогресс бар */
-.progress-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-}
-
-.progress-container {
-    flex: 1;
-    height: 10px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    padding: 0 5px;
-}
-
-.progress-bar {
+.auth-box input {
     width: 100%;
-    height: 4px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 4px;
-    position: relative;
-    overflow: hidden;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #fff;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    box-sizing: border-box;
 }
 
-.progress-fill {
-    height: 100%;
-    background: var(--accent);
-    width: 0%;
-    transition: width 0.1s linear;
-}
+.auth-buttons { display: flex; gap: 12px; }
+.auth-buttons button { flex: 1; padding: 12px; border-radius: 12px; border: none; cursor: pointer; font-size: 1rem; transition: var(--transition-smooth); }
 
-.progress-knob {
-    position: absolute;
-    height: 12px;
-    width: 12px;
-    background: var(--text-main);
-    border-radius: 50%;
-    top: -4px;
-    left: -6px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-}
+#loginBtn { background: var(--accent); color: var(--bg-base); font-weight: bold; }
+#loginBtn:hover { background: var(--accent-hover); }
+.secondary-btn { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--glass-border); }
+.secondary-btn:hover { background: rgba(255,255,255,0.1); }
 
-.progress-container:hover .progress-knob { opacity: 1; }
-.progress-container:hover .progress-fill { background: var(--text-main); }
+.error-msg { color: #f87171 !important; margin-top: 12px; font-size: 0.85rem !important; }
 
-/* Громкость */
-.volume-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: 120px;
-    margin: 0 auto;
-}
-
-.volume-icon { font-size: 1.2rem; color: var(--text-muted); }
-
-#volumeSlider {
-    flex: 1;
-    -webkit-appearance: none;
-    background: rgba(255,255,255,0.05);
-    height: 4px;
-    border-radius: 4px;
-    cursor: pointer;
-    outline: none;
-}
-
-#volumeSlider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    height: 12px;
-    width: 12px;
-    background: var(--text-muted);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-}
-
-#volumeSlider::-webkit-slider-thumb:hover { background: var(--accent); transform: scale(1.2); }
-
-/* Медиа-запрос для iPhone/мобильных */
-@media (max-width: 600px) {
-    .glass-container { width: 100%; height: 100vh; border-radius: 0; border: none; }
-    header { padding: 18px 24px; }
-    main { padding: 18px 24px; }
-    .player-container { padding: 18px 24px; }
-    .track-item { padding: 16px 20px; }
-}
+.hidden { display: none !important; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.logout-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--text-muted); padding: 8px 16px; border-radius: 30px; cursor: pointer; }
+.logout-btn:hover { color: #fff; border-color: #f87171; }
