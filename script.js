@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://d1mt1m-music-player.hf.space';
+const API_BASE_URL = 'http://127.0.0.1:5000';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Элементы Авторизации
