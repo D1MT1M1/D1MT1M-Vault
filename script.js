@@ -44,37 +44,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Авторизация
     loginBtn.addEventListener('click', async () => {
-        const response = await fetch(`${API_BASE_URL}/api/login`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({username: usernameInput.value, password: passwordInput.value})
-        });
-        const data = await response.json();
-        
-        if (response.ok) {
-            localStorage.setItem('userId', data.user_id);
-            localStorage.setItem('username', data.username);
-            location.reload();
-        } else {
-            authMessage.textContent = data.error;
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/login`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: usernameInput.value, password: passwordInput.value})
+            });
+            const data = await response.json();
+            
+            if (response.ok) {
+                localStorage.setItem('userId', data.user_id);
+                localStorage.setItem('username', data.username);
+                location.reload();
+            } else {
+                authMessage.textContent = data.error || 'Login failed';
+                authMessage.style.color = '#f87171';
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            authMessage.textContent = 'Network error. Check if backend is running at ' + API_BASE_URL;
+            authMessage.style.color = '#f87171';
         }
     });
 
     // Регистрация
     registerBtn.addEventListener('click', async () => {
-        const response = await fetch(`${API_BASE_URL}/api/register`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({username: usernameInput.value, password: passwordInput.value})
-        });
-        const data = await response.json();
-        
-        if (response.ok) {
-            authMessage.style.color = '#4ade80';
-            authMessage.textContent = "Success! Now you can log in.";
-        } else {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/register`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: usernameInput.value, password: passwordInput.value})
+            });
+            const data = await response.json();
+            
+            if (response.ok) {
+                authMessage.style.color = '#4ade80';
+                authMessage.textContent = "Success! Now you can log in.";
+            } else {
+                authMessage.style.color = '#f87171';
+                authMessage.textContent = data.error || 'Registration failed';
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
             authMessage.style.color = '#f87171';
-            authMessage.textContent = data.error;
+            authMessage.textContent = 'Network error. Check if backend is running at ' + API_BASE_URL;
         }
     });
 
@@ -91,10 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${API_BASE_URL}/api/tracks`, {
                 headers: {'X-User-ID': userId}
             });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             tracksData = await response.json();
             renderTracks(tracksData);
         } catch (error) {
-            console.error(error);
+            console.error('Fetch library error:', error);
+            trackList.innerHTML = '<div class="empty-state">Error loading tracks. Backend may be offline.</div>';
         }
     };
 
@@ -185,10 +202,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentTrackName.textContent = "Success!";
                 fetchLibrary();
             } else {
-                currentTrackName.textContent = "Error during upload.";
+                const data = await response.json();
+                currentTrackName.textContent = data.error || "Error during upload.";
             }
         } catch (error) {
-            console.error(error);
+            console.error('Upload error:', error);
+            currentTrackName.textContent = "Network error during upload.";
         } finally {
             fileInput.value = '';
         }
