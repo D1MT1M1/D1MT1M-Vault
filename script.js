@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://127.0.0.1:7860';
+const API_BASE_URL = 'https://music-player-backend-u83s.onrender.com';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Элементы Авторизации
