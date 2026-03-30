@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>D1MT1M Vault</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glass-container">
+        <header>
+            <h1>D1MT1M <span class="accent">Vault</span></h1>
+            <label class="upload-btn">
+                <span class="icon">⏏</span>
+                Upload MP3
+                <input type="file" id="fileInput" accept="audio/mp3" hidden>
+            </label>
+        </header>
+
+        <main id="trackList">
+            <div class="empty-state">Loading library...</div>
+        </main>
+
+        <footer class="player-container">
+            <div class="now-playing">
+                <span id="currentTrackName">Select a track to play</span>
+            </div>
+            
+            <div class="custom-player">
+                <div class="controls-row">
+                    <button id="prevBtn" class="control-btn" title="Previous">⏮</button>
+                    <button id="playBtn" class="control-btn play-pause-btn" title="Play/Pause">▶</button>
+                    <button id="nextBtn" class="control-btn" title="Next">⏭</button>
+                    <button id="repeatBtn" class="control-btn repeat-btn" title="Repeat Single Track">🔁</button>
+                </div>
+                
+                <div class="progress-row">
+                    <span id="currentTime">0:00</span>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                            <div class="progress-knob"></div>
+                        </div>
+                    </div>
+                    <span id="totalTime">0:00</span>
+                </div>
+                
+                <div class="volume-row">
+                    <span class="volume-icon">🔊</span>
+                    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+                </div>
+            </div>
+            
+            <audio id="audioPlayer"></audio>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
