@@ -1,8 +1,16 @@
-// ЛОКАЛЬНАЯ РАЗРАБОТКА:
-const API_BASE_URL = 'https://music-player-backend-u83s.onrender.com';
+// API Configuration
+// Используем config.js если доступен, иначе Render URL напрямую
+let API_BASE_URL;
 
-// PRODUCTION (Render):
-// const API_BASE_URL = 'https://your-app-name.onrender.com';
+if (typeof API_CONFIG !== 'undefined') {
+    // Если config.js подключен
+    API_BASE_URL = API_CONFIG.getCurrent();
+} else {
+    // Fallback на production URL (Render)
+    API_BASE_URL = 'https://music-player-backend-u83s.onrender.com';
+}
+
+console.log('🌐 API Base URL:', API_BASE_URL);
 
 document.addEventListener('DOMContentLoaded', () => {
     // === ЭЛЕМЕНТЫ АВТОРИЗАЦИИ ===
