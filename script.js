@@ -4,6 +4,8 @@ const API_BASE_URL = 'https://music-player-backend-u83s.onrender.com';
 console.log('🌐 API Base URL:', API_BASE_URL);
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('✅ DOM Content Loaded');
+    
     // === ЭЛЕМЕНТЫ АВТОРИЗАЦИИ ===
     const authScreen = document.getElementById('authScreen');
     const mainApp = document.getElementById('mainApp');
@@ -14,6 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const authMessage = document.getElementById('authMessage');
     const welcomeUser = document.getElementById('welcomeUser');
     const logoutBtn = document.getElementById('logoutBtn');
+
+    // Проверяем что все элементы найдены
+    console.log('✓ authScreen:', !!authScreen);
+    console.log('✓ loginBtn:', !!loginBtn);
+    console.log('✓ registerBtn:', !!registerBtn);
+    console.log('✓ usernameInput:', !!usernameInput);
+    console.log('✓ passwordInput:', !!passwordInput);
 
     // === ЭЛЕМЕНТЫ ПЛЕЕРА ===
     const trackList = document.getElementById('trackList');
@@ -60,49 +69,81 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     loginBtn.addEventListener('click', async () => {
+        console.log('🔐 Login button clicked!');
+        const username = usernameInput.value;
+        const password = passwordInput.value;
+        
+        if (!username || !password) {
+            authMessage.textContent = '⚠️ Заполните оба поля!';
+            authMessage.style.color = '#f87171';
+            return;
+        }
+        
+        console.log('Отправляем запрос на:', `${API_BASE_URL}/api/login`);
+        
         try {
             const response = await fetch(`${API_BASE_URL}/api/login`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: usernameInput.value, password: passwordInput.value})
+                body: JSON.stringify({username, password})
             });
+            
+            console.log('Ответ статус:', response.status);
             const data = await response.json();
+            console.log('Ответ данные:', data);
             
             if (response.ok) {
                 localStorage.setItem('userId', data.user_id);
                 localStorage.setItem('username', data.username);
+                console.log('✅ Логин успешен!');
                 location.reload();
             } else {
                 authMessage.textContent = data.error || 'Ошибка входа';
                 authMessage.style.color = '#f87171';
             }
         } catch (error) {
-            console.error('Login error:', error);
-            authMessage.textContent = 'Ошибка сети. Проверьте если бекенд запущен';
+            console.error('❌ Login error:', error);
+            authMessage.textContent = 'Ошибка сети: ' + error.message;
             authMessage.style.color = '#f87171';
         }
     });
 
     registerBtn.addEventListener('click', async () => {
+        console.log('📝 Register button clicked!');
+        const username = usernameInput.value;
+        const password = passwordInput.value;
+        
+        if (!username || !password) {
+            authMessage.textContent = '⚠️ Заполните оба поля!';
+            authMessage.style.color = '#f87171';
+            return;
+        }
+        
+        console.log('Отправляем запрос на:', `${API_BASE_URL}/api/register`);
+        
         try {
             const response = await fetch(`${API_BASE_URL}/api/register`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: usernameInput.value, password: passwordInput.value})
+                body: JSON.stringify({username, password})
             });
+            
+            console.log('Ответ статус:', response.status);
             const data = await response.json();
+            console.log('Ответ данные:', data);
             
             if (response.ok) {
                 authMessage.style.color = '#4ade80';
                 authMessage.textContent = "✓ Успешно! Теперь вы можете войти.";
+                console.log('✅ Регистрация успешна!');
             } else {
                 authMessage.style.color = '#f87171';
                 authMessage.textContent = data.error || 'Ошибка регистрации';
             }
         } catch (error) {
-            console.error('Registration error:', error);
+            console.error('❌ Registration error:', error);
             authMessage.style.color = '#f87171';
-            authMessage.textContent = 'Ошибка сети';
+            authMessage.textContent = 'Ошибка сети: ' + error.message;
         }
     });
 
