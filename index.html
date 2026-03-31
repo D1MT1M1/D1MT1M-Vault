@@ -1,75 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>D1MT1M Vault</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D1MT1M Vault - Music Player</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- AUTH SCREEN -->
     <div id="authScreen" class="auth-overlay">
         <div class="auth-box">
             <h2>D1MT1M <span class="accent">Vault</span></h2>
-            <p id="authSubtitle">Please log in to access your music</p>
-            <input type="text" id="usernameInput" placeholder="Username">
-            <input type="password" id="passwordInput" placeholder="Password">
+            <p id="authSubtitle">Добро пожаловать в ваш музыкальный плеер</p>
+            <input type="text" id="usernameInput" placeholder="Имя пользователя">
+            <input type="password" id="passwordInput" placeholder="Пароль">
             <div class="auth-buttons">
-                <button id="loginBtn">Log In</button>
-                <button id="registerBtn" class="secondary-btn">Register</button>
+                <button id="loginBtn">Вход</button>
+                <button id="registerBtn" class="secondary-btn">Регистрация</button>
             </div>
             <p id="authMessage" class="error-msg"></p>
         </div>
     </div>
 
-    <div class="glass-container hidden" id="mainApp">
-        <header>
-            <h1>D1MT1M <span class="accent">Vault</span></h1>
+    <!-- MAIN APP -->
+    <div id="mainApp" class="main-app hidden">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-left">
+                <h1>D1MT1M <span class="accent">Vault</span></h1>
+            </div>
             <div class="header-right">
-                <span id="welcomeUser"></span>
+                <span id="welcomeUser" class="welcome-text"></span>
                 <label class="upload-btn">
-                    <span class="icon">⏏</span> Upload
+                    <span class="upload-icon">⏫</span> Загрузить
                     <input type="file" id="fileInput" accept="audio/mp3" hidden>
                 </label>
-                <button id="logoutBtn" class="logout-btn">Exit</button>
+                <button id="logoutBtn" class="logout-btn">Выход</button>
             </div>
         </header>
 
-        <main id="trackList">
-            <div class="empty-state">Loading library...</div>
-        </main>
-
-        <footer class="player-container">
-            <div class="now-playing">
-                <span id="currentTrackName">Select a track to play</span>
-            </div>
-            
-            <div class="custom-player">
-                <div class="controls-row">
-                    <button id="prevBtn" class="control-btn">⏮</button>
-                    <button id="playBtn" class="control-btn play-pause-btn">▶</button>
-                    <button id="nextBtn" class="control-btn">⏭</button>
-                    <button id="repeatBtn" class="control-btn repeat-btn">🔁</button>
+        <!-- MAIN CONTAINER -->
+        <div class="player-wrapper">
+            <!-- LEFT SIDEBAR - PLAYLIST -->
+            <aside class="playlist-sidebar">
+                <div class="playlist-header">
+                    <h3>🎵 Ваша библиотека</h3>
                 </div>
-                
-                <div class="progress-row">
-                    <span id="currentTime">0:00</span>
+                <div id="trackList" class="track-list">
+                    <div class="empty-state">Загружаем вашу библиотеку...</div>
+                </div>
+            </aside>
+
+            <!-- CENTER - PLAYER -->
+            <main class="player-center">
+                <!-- NOW PLAYING CARD -->
+                <div class="now-playing-card">
+                    <div class="album-art">
+                        <div class="album-placeholder">🎵</div>
+                    </div>
+                    <div class="track-info">
+                        <h2 id="currentTrackName" class="track-title">Выберите трек для воспроизведения</h2>
+                        <p class="track-artist">D1MT1M Vault</p>
+                    </div>
+                </div>
+
+                <!-- PROGRESS BAR -->
+                <div class="progress-section">
                     <div class="progress-container">
                         <div class="progress-bar">
                             <div class="progress-fill"></div>
                             <div class="progress-knob"></div>
                         </div>
                     </div>
-                    <span id="totalTime">0:00</span>
+                    <div class="time-display">
+                        <span id="currentTime" class="time">0:00</span>
+                        <span id="totalTime" class="time">0:00</span>
+                    </div>
                 </div>
-                
-                <div class="volume-row">
+
+                <!-- CONTROLS -->
+                <div class="controls-section">
+                    <div class="controls-main">
+                        <button id="prevBtn" class="control-btn btn-prev" title="Предыдущий трек">
+                            <span>⏮️</span>
+                        </button>
+                        <button id="playBtn" class="control-btn btn-play-pause" title="Воспроизведение">
+                            <span>▶</span>
+                        </button>
+                        <button id="nextBtn" class="control-btn btn-next" title="Следующий трек">
+                            <span>⏭️</span>
+                        </button>
+                    </div>
+                    <button id="repeatBtn" class="control-btn btn-repeat" title="Повтор">
+                        <span>🔁</span>
+                    </button>
+                </div>
+
+                <!-- VOLUME CONTROL -->
+                <div class="volume-section">
                     <span class="volume-icon">🔊</span>
-                    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+                    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="1">
+                    <span class="volume-label">100%</span>
                 </div>
-            </div>
-            
-            <audio id="audioPlayer"></audio>
-        </footer>
+            </main>
+        </div>
+
+        <!-- AUDIO ELEMENT -->
+        <audio id="audioPlayer"></audio>
     </div>
 
     <script src="script.js"></script>

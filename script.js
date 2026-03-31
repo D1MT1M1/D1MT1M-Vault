@@ -1,7 +1,11 @@
-const API_BASE_URL = 'https://music-player-backend-u83s.onrender.com';
+// ЛОКАЛЬНАЯ РАЗРАБОТКА:
+const API_BASE_URL = 'http://127.0.0.1:7860';
+
+// PRODUCTION (Render):
+// const API_BASE_URL = 'https://your-app-name.onrender.com';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Элементы Авторизации
+    // === ЭЛЕМЕНТЫ АВТОРИЗАЦИИ ===
     const authScreen = document.getElementById('authScreen');
     const mainApp = document.getElementById('mainApp');
     const usernameInput = document.getElementById('usernameInput');
@@ -12,37 +16,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const welcomeUser = document.getElementById('welcomeUser');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    // Элементы плеера
+    // === ЭЛЕМЕНТЫ ПЛЕЕРА ===
     const trackList = document.getElementById('trackList');
     const fileInput = document.getElementById('fileInput');
     const currentTrackName = document.getElementById('currentTrackName');
     const audio = document.getElementById('audioPlayer');
+    
+    // Кнопки управления
     const playBtn = document.getElementById('playBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const repeatBtn = document.getElementById('repeatBtn');
+    
+    // Прогресс-бар
     const progressContainer = document.querySelector('.progress-container');
     const progressFill = document.querySelector('.progress-fill');
     const progressKnob = document.querySelector('.progress-knob');
     const currentTimeText = document.getElementById('currentTime');
     const totalTimeText = document.getElementById('totalTime');
+    
+    // Громкость
     const volumeSlider = document.getElementById('volumeSlider');
-    const repeatBtn = document.getElementById('repeatBtn');
+    const volumeLabel = document.querySelector('.volume-label');
 
+    // === ПЕРЕМЕННЫЕ СОСТОЯНИЯ ===
     let isRepeatOne = false;
+    let currentTrackIndex = -1;
     let trackElements = [];
-    let tracksData = []; // Храним массив объектов {filename, url}
+    let tracksData = [];
 
-    // Проверка авторизации при загрузке
+    // ==========================================
+    // АВТОРИЗАЦИЯ
+    // ==========================================
+
     const checkAuth = () => {
         const userId = localStorage.getItem('userId');
         const username = localStorage.getItem('username');
         if (userId && username) {
             authScreen.classList.add('hidden');
             mainApp.classList.remove('hidden');
-            welcomeUser.textContent = `Hi, ${username}!`;
+            welcomeUser.textContent = `Привет, ${username}!`;
             fetchLibrary();
         }
     };
 
-    // Авторизация
     loginBtn.addEventListener('click', async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/login`, {
@@ -57,17 +74,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('username', data.username);
                 location.reload();
             } else {
-                authMessage.textContent = data.error || 'Login failed';
+                authMessage.textContent = data.error || 'Ошибка входа';
                 authMessage.style.color = '#f87171';
             }
         } catch (error) {
             console.error('Login error:', error);
-            authMessage.textContent = 'Network error. Check if backend is running at ' + API_BASE_URL;
+            authMessage.textContent = 'Ошибка сети. Проверьте если бекенд запущен';
             authMessage.style.color = '#f87171';
         }
     });
 
-    // Регистрация
     registerBtn.addEventListener('click', async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/register`, {
@@ -79,47 +95,48 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (response.ok) {
                 authMessage.style.color = '#4ade80';
-                authMessage.textContent = "Success! Now you can log in.";
+                authMessage.textContent = "✓ Успешно! Теперь вы можете войти.";
             } else {
                 authMessage.style.color = '#f87171';
-                authMessage.textContent = data.error || 'Registration failed';
+                authMessage.textContent = data.error || 'Ошибка регистрации';
             }
         } catch (error) {
             console.error('Registration error:', error);
             authMessage.style.color = '#f87171';
-            authMessage.textContent = 'Network error. Check if backend is running at ' + API_BASE_URL;
+            authMessage.textContent = 'Ошибка сети';
         }
     });
 
-    // Выход
     logoutBtn.addEventListener('click', () => {
         localStorage.clear();
         location.reload();
     });
 
-    // Получение библиотеки
+    // ==========================================
+    // ЗАГРУЗКА И ОТРИСОВКА ТРЕКОВ
+    // ==========================================
+
     const fetchLibrary = async () => {
         const userId = localStorage.getItem('userId');
         try {
             const response = await fetch(`${API_BASE_URL}/api/tracks`, {
                 headers: {'X-User-ID': userId}
             });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             tracksData = await response.json();
             renderTracks(tracksData);
         } catch (error) {
             console.error('Fetch library error:', error);
-            trackList.innerHTML = '<div class="empty-state">Error loading tracks. Backend may be offline.</div>';
+            trackList.innerHTML = '<div class="empty-state">⚠️ Ошибка загрузки. Проверьте бекенд.</div>';
         }
     };
 
     const renderTracks = (tracks) => {
         trackList.innerHTML = '';
         trackElements = [];
+        
         if (tracks.length === 0) {
-            trackList.innerHTML = '<div class="empty-state">No tracks found. Upload one!</div>';
+            trackList.innerHTML = '<div class="empty-state">📭 Библиотека пуста. Загрузите музыку!</div>';
             return;
         }
 
@@ -129,58 +146,112 @@ document.addEventListener('DOMContentLoaded', () => {
             div.textContent = trackObj.filename;
             trackElements.push(div);
 
-            div.addEventListener('click', () => {
-                playTrack(index);
-            });
+            div.addEventListener('click', () => playTrack(index));
             trackList.appendChild(div);
         });
     };
 
+    // ==========================================
+    // УПРАВЛЕНИЕ ВОСПРОИЗВЕДЕНИЕМ
+    // ==========================================
+
     const playTrack = (index) => {
+        if (index < 0 || index >= tracksData.length) return;
+        
+        currentTrackIndex = index;
+        
+        // Обновляем визуальное выделение
         trackElements.forEach(el => el.classList.remove('playing'));
         trackElements[index].classList.add('playing');
         
+        // Загружаем и воспроизводим трек
         const trackObj = tracksData[index];
         currentTrackName.textContent = trackObj.filename;
-        audio.src = trackObj.url; // Прямая ссылка на Supabase!
+        audio.src = trackObj.url;
         audio.play();
-        playBtn.textContent = '❚❚';
+        playBtn.querySelector('span').textContent = '⏸';
     };
 
-    // Простые управления
+    // Кнопка Play/Pause
     playBtn.addEventListener('click', () => {
         if (!audio.src) return;
-        if (audio.paused) { audio.play(); playBtn.textContent = '❚❚'; }
-        else { audio.pause(); playBtn.textContent = '▶'; }
+        if (audio.paused) {
+            audio.play();
+            playBtn.querySelector('span').textContent = '⏸';
+        } else {
+            audio.pause();
+            playBtn.querySelector('span').textContent = '▶';
+        }
     });
 
+    // Кнопка Previous Track
+    prevBtn.addEventListener('click', () => {
+        let newIndex = currentTrackIndex - 1;
+        if (newIndex < 0) newIndex = tracksData.length - 1;
+        playTrack(newIndex);
+    });
+
+    // Кнопка Next Track
+    nextBtn.addEventListener('click', () => {
+        let newIndex = currentTrackIndex + 1;
+        if (newIndex >= tracksData.length) newIndex = 0;
+        playTrack(newIndex);
+    });
+
+    // Кнопка Repeat
     repeatBtn.addEventListener('click', () => {
         isRepeatOne = !isRepeatOne;
         audio.loop = isRepeatOne;
         repeatBtn.classList.toggle('active', isRepeatOne);
     });
 
+    // Автоматический переход на следующий трек при окончании
+    audio.addEventListener('ended', () => {
+        if (isRepeatOne) {
+            audio.currentTime = 0;
+            audio.play();
+        } else {
+            nextBtn.click();
+        }
+    });
+
+    // ==========================================
+    // ПРОГРЕСС-БАР И ВРЕМЯ
+    // ==========================================
+
     audio.addEventListener('timeupdate', () => {
         if (!audio.duration) return;
         const percent = (audio.currentTime / audio.duration) * 100;
         progressFill.style.width = `${percent}%`;
-        progressKnob.style.left = `calc(${percent}% - 6px)`;
-        currentTimeText.textContent = Math.floor(audio.currentTime / 60) + ":" + ("0" + Math.floor(audio.currentTime % 60)).slice(-2);
+        progressKnob.style.left = `${percent}%`;
+        currentTimeText.textContent = formatTime(audio.currentTime);
     });
 
     audio.addEventListener('loadedmetadata', () => {
-        totalTimeText.textContent = Math.floor(audio.duration / 60) + ":" + ("0" + Math.floor(audio.duration % 60)).slice(-2);
+        totalTimeText.textContent = formatTime(audio.duration);
     });
 
     progressContainer.addEventListener('click', (e) => {
         if (!audio.src) return;
         const rect = progressContainer.getBoundingClientRect();
-        audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+        const percent = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = percent * audio.duration;
     });
 
-    volumeSlider.addEventListener('input', (e) => { audio.volume = e.target.value; });
+    // ==========================================
+    // УПРАВЛЕНИЕ ГРОМКОСТЬЮ
+    // ==========================================
 
-    // Загрузка файла
+    volumeSlider.addEventListener('input', (e) => {
+        audio.volume = e.target.value;
+        const percent = Math.round(e.target.value * 100);
+        if (volumeLabel) volumeLabel.textContent = percent + '%';
+    });
+
+    // ==========================================
+    // ЗАГРУЗКА ФАЙЛА
+    // ==========================================
+
     fileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -189,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('file', file);
 
         const userId = localStorage.getItem('userId');
-        currentTrackName.textContent = "Uploading to cloud...";
+        currentTrackName.textContent = "⏳ Загружаем в облако...";
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/upload`, {
@@ -199,19 +270,34 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
-                currentTrackName.textContent = "Success!";
-                fetchLibrary();
+                currentTrackName.textContent = "✓ Успешно загружено!";
+                setTimeout(() => fetchLibrary(), 1000);
             } else {
                 const data = await response.json();
-                currentTrackName.textContent = data.error || "Error during upload.";
+                currentTrackName.textContent = data.error || "❌ Ошибка загрузки.";
             }
         } catch (error) {
             console.error('Upload error:', error);
-            currentTrackName.textContent = "Network error during upload.";
+            currentTrackName.textContent = "❌ Ошибка сети при загрузке.";
         } finally {
             fileInput.value = '';
         }
     });
+
+    // ==========================================
+    // УТИЛИТЫ
+    // ==========================================
+
+    const formatTime = (seconds) => {
+        if (!seconds || isNaN(seconds)) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    // ==========================================
+    // ИНИЦИАЛИЗАЦИЯ
+    // ==========================================
 
     checkAuth();
 });
